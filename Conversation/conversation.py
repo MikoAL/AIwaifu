@@ -59,7 +59,16 @@ class character_msg_constructor:
     ordered.reverse()
     return ordered[:2]
   
-  def clean_emotion_action_text_for_speech(self, text):
-    clean_text = re.sub(r'\*.*?\*', '', text) # remove *action* from text
-    clean_text = clean_text.replace(f'{self.name}:', '') # replace -> name: "dialog"
-    return clean_text
+  def clean_emotion_action_text_for_speech(self, list_of_text):
+    #print(f'got: {list_of_text}')
+    #clean_list = []
+    for text in reversed(list_of_text):
+      # Grab the latest response from the character
+      #print(f"checking: {text[:(len(self.name)+1]})")
+      if text[:(len(self.name)+1)] == f'{self.name}:':
+        clean_text = re.sub(r'\*.*?\*', '', text) # remove *action* from text
+        clean_text = clean_text.replace(f'{self.name}:', '') # replace -> name: "dialog"
+        return clean_text
+    print("didn't find a response from character?")
+    print('Error: This is not suppose to happen. please check [clean_emotion_action_text_for_speech] from conversation.py')
+    return 'Error: This is not suppose to happen. please check [clean_emotion_action_text_for_speech] from conversation.py'

@@ -65,11 +65,11 @@ def run(prompt):
     if response.status_code == 200:
         result = response.json()['results'][0]['text']
         #print(prompt + result)
-        return prompt + result
+        return prompt, result
 # ---------- Config ----------
 translation = bool(input("Enable translation? (Y/n): ").lower() in {'y', ''})
 
-print("Use oobabooga api? (Y/n): ")
+print("Use oobabooga api? (Y/n): ",end = '')
 if input().lower() == 'y':
     oobabooga_api = True
     response = requests.post(f'http://{HOST}/api/v1/model', json={'action': 'info'})
@@ -95,8 +95,7 @@ if oobabooga_api == False:
             print("Using CPU...")
             use_gpu = False
             device = torch.device('cpu')
-    else:
-        print('GPU not detected, falling back to CPU...')
+
 # ---------- load Conversation model ----------
         print("Initilizing model....")
         print("Loading language model...")
@@ -150,21 +149,17 @@ def get_waifuapi(command: str, data: str):
             out = model.generate(**inputs, max_length=len(inputs['input_ids'][0]) + 80, #todo 200 ?
                                 pad_token_id=tokenizer.eos_token_id, do_sample=True, top_k=50, top_p=0.95)
             conversation = tokenizer.batch_decode(out, skip_special_tokens=True)
-            #print(type(conversation))
-            #print(f'len(conversation): {len(conversation)}')
-            #print(*conversation)
-            #print("conversation .. \n" + ', '.join(conversation))
+            print(conversation)
+            # print("conversation .. \n" + conversation)
         else:
             inputs = msg
-            conversation = run(inputs)
+            prompt, result = run(inputs)
         ## --------------------------------------------------
 
         ## get conversation in proper format and create history from [last_idx: last_idx+2] conversation
         talk.split_counter += 0
         print("get_current_converse ..\n")
-        print(len(conversation))
-        print(conversation)
-        current_converse = talk.get_current_converse(conversation[0])
+        current_converse = talk.get_current_converse(conversation[1])
         print("answer ..\n") # only print waifu answer since input already show
         print(current_converse)
         # talk.history_loop_cache = '\n'.join(current_converse)  # update history for next input message
